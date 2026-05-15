@@ -1,0 +1,749 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0e1a;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:12px;overflow-x:hidden}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#0f1527;border-bottom:1px solid #1e2a45;display:flex;align-items:center;gap:10px;padding:0 14px;height:40px;flex-shrink:0}
+.logo{font-weight:700;font-size:13px;color:#00d4ff;letter-spacing:0.5px}
+.logo span{color:#e2e8f0;font-weight:400}
+.badge{background:#1e2a45;color:#00d4ff;padding:2px 8px;border-radius:3px;font-size:10px;white-space:nowrap}
+.ticker{margin-left:auto;font-size:10px;color:#475569;display:flex;gap:14px}
+.main{display:grid;grid-template-columns:228px 1fr 196px;flex:1;min-height:0}
+.left{background:#0f1527;border-right:1px solid #1e2a45;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:7px}
+.center{background:#0a0e1a;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:9px;padding:11px;overflow-y:auto}
+.right{background:#0f1527;border-left:1px solid #1e2a45;overflow-y:auto;padding:9px;display:flex;flex-direction:column;gap:9px}
+.psec{border:1px solid #1e2a45;border-radius:5px;overflow:hidden}
+.ph{background:#141b30;padding:5px 9px;font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1.2px;border-bottom:1px solid #1e2a45}
+.pb{padding:8px;display:flex;flex-direction:column;gap:7px}
+.pr{display:flex;flex-direction:column;gap:3px}
+.pl{display:flex;justify-content:space-between;align-items:center}
+.pn{font-size:10px;color:#cbd5e1;line-height:1.3}
+.pv{font-size:10px;color:#00d4ff;font-weight:700;min-width:44px;text-align:right;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;width:100%;height:2px;background:#1e2a45;border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:#00d4ff;cursor:pointer}
+select{background:#141b30;border:1px solid #1e2a45;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 7px;border-radius:3px;width:100%;outline:none;cursor:pointer;line-height:1.4}
+select:focus{border-color:#00d4ff}
+.togs{display:flex;gap:3px;flex-wrap:wrap}
+.tog{flex:1;padding:3px 0;font-size:9px;background:#141b30;border:1px solid #1e2a45;color:#475569;border-radius:3px;cursor:pointer;text-align:center;transition:all .15s;min-width:44px}
+.tog.on{background:rgba(0,212,255,0.08);border-color:#00d4ff;color:#00d4ff}
+.canvas-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.cw{display:flex;flex-direction:column;align-items:center;gap:4px}
+.ct{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;text-align:center}
+canvas{border:1px solid #1e2a45;border-radius:3px;display:block;image-rendering:pixelated}
+.csub{font-size:9px;color:#334155;text-align:center}
+.mbar{display:flex;gap:8px;background:#0f1527;border:1px solid #1e2a45;border-radius:5px;padding:6px 10px;flex-wrap:wrap;justify-content:center}
+.met{display:flex;flex-direction:column;align-items:center;gap:1px}
+.mv{font-size:14px;font-weight:700}
+.ml{font-size:8px;color:#475569;text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap}
+.runrow{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center}
+.rbtn{background:#00d4ff;color:#000;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;padding:6px 20px;border-radius:3px;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.rbtn:hover{background:#00bde0}
+.rbtn:disabled{background:#1e2a45;color:#475569;cursor:not-allowed}
+.sbtn{background:transparent;border:1px solid #ff4757;color:#ff4757;font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;border-radius:3px;cursor:pointer;white-space:nowrap}
+.xbtn{background:transparent;border:1px solid #1e2a45;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;border-radius:3px;cursor:pointer;white-space:nowrap}
+.cbtn{background:transparent;border:1px solid #ff4757;color:#ff4757;font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;border-radius:3px;cursor:pointer;white-space:nowrap}
+.status{font-size:10px;color:#475569;height:13px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}
+.status.run{color:#00ff9d}
+.status.done{color:#00d4ff}
+.status.warn{color:#ffb347}
+.cht{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px}
+.leg{display:flex;flex-direction:column;gap:2px;margin-top:3px}
+.li{display:flex;align-items:center;gap:4px;font-size:9px;color:#475569}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ibox{background:#141b30;border:1px solid #1e2a45;border-radius:4px;padding:7px}
+.kv{display:flex;justify-content:space-between;font-size:9px;line-height:1.85;gap:4px}
+.kv span:first-child{color:#64748b;white-space:nowrap}
+.kv span:last-child{color:#00d4ff;text-align:right}
+
+/* Run History */
+.history-wrap{width:100%}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.history-title{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.8px}
+.history-clear{font-size:9px;color:#ff4757;cursor:pointer;background:none;border:none;font-family:'JetBrains Mono',monospace;padding:0}
+.history-table{width:100%;border-collapse:collapse;font-size:9px}
+.history-table th{color:#475569;text-align:right;padding:3px 4px;border-bottom:1px solid #1e2a45;font-weight:500;white-space:nowrap}
+.history-table th:first-child{text-align:left}
+.history-table td{padding:3px 4px;border-bottom:1px solid #111827;text-align:right;color:#94a3b8;white-space:nowrap}
+.history-table td:first-child{text-align:left;color:#64748b}
+.history-table tr.best-run td{color:#e2e8f0}
+.history-table tr.best-run td:first-child{color:#00d4ff}
+.history-table tr:hover td{background:#141b30}
+.run-num{display:inline-block;width:14px;height:14px;border-radius:50%;text-align:center;line-height:14px;font-size:8px;font-weight:700;margin-right:3px}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:#0a0e1a}
+::-webkit-scrollbar-thumb{background:#1e2a45;border-radius:2px}
+</style>
+
+<div class="app">
+<div class="topbar">
+  <div class="logo">Seg<span>Playground</span></div>
+  <div class="badge">U-Net Simulator</div>
+  <div class="badge">Tumor Segmentation</div>
+  <div class="ticker"><span id="etick">Epoch: 0</span><span id="ttick">00:00</span></div>
+</div>
+
+<div class="main">
+<div class="left">
+
+  <div class="psec"><div class="ph">Optimization</div><div class="pb">
+    <div class="pr"><div class="pl"><span class="pn">Learning Rate (η)</span><span class="pv" id="lv">0.0100</span></div>
+      <input type="range" id="lr" min="1" max="100" value="10" step="1" oninput="document.getElementById('lv').textContent=(+this.value/1000).toFixed(4)"></div>
+    <div class="pr"><div class="pl"><span class="pn">Epochs</span><span class="pv" id="epv">50</span></div>
+      <input type="range" id="ep" min="10" max="300" value="50" step="10" oninput="document.getElementById('epv').textContent=this.value"></div>
+    <div class="pr"><div class="pl"><span class="pn">Batch Size</span><span class="pv" id="bv">8</span></div>
+      <input type="range" id="bs" min="1" max="64" value="8" step="1" oninput="document.getElementById('bv').textContent=this.value"></div>
+    <div class="pr"><div class="pl"><span class="pn">Weight Decay (L2)</span><span class="pv" id="wdv">1e-4</span></div>
+      <input type="range" id="wd" min="0" max="7" value="3" step="1" oninput="updWD(this.value)"></div>
+    <div class="pr"><div class="pl"><span class="pn">Momentum (SGD)</span><span class="pv" id="momv">0.90</span></div>
+      <input type="range" id="mom" min="50" max="99" value="90" step="1" oninput="document.getElementById('momv').textContent=(+this.value/100).toFixed(2)"></div>
+    <div class="pr"><span class="pn" style="margin-bottom:3px">Optimizer</span>
+      <select id="opt">
+        <option value="adam">Adam — adaptive LR per param</option>
+        <option value="adamw">AdamW — Adam + decoupled decay</option>
+        <option value="sgd">SGD + Momentum — classic</option>
+        <option value="rms">RMSprop — non-stationary</option>
+        <option value="nadam">Nadam — Adam + Nesterov</option>
+        <option value="adagrad">Adagrad — sparse features</option>
+      </select></div>
+    <div class="pr"><span class="pn" style="margin-bottom:3px">LR Scheduler</span>
+      <select id="sched">
+        <option value="none">Constant — no decay</option>
+        <option value="plateau">ReduceLROnPlateau</option>
+        <option value="cosine">Cosine Annealing</option>
+        <option value="step">StepLR — ×0.1 / 30 ep</option>
+        <option value="exp">ExponentialLR — ×0.95/ep</option>
+        <option value="warmup">Warmup + Cosine</option>
+      </select></div>
+  </div></div>
+
+  <div class="psec"><div class="ph">Loss Function</div><div class="pb">
+    <div class="pr"><select id="loss">
+        <option value="dice">Dice Loss</option>
+        <option value="bce">Binary Cross-Entropy</option>
+        <option value="combo">Combo: Dice + BCE</option>
+        <option value="focal">Focal Loss</option>
+        <option value="tversky">Tversky Loss</option>
+        <option value="lovasz">Lovász-Softmax</option>
+        <option value="boundary">Boundary Loss</option>
+      </select></div>
+    <div class="pr"><div class="pl"><span class="pn">Focal γ</span><span class="pv" id="gv">2.0</span></div>
+      <input type="range" id="gamma" min="0" max="50" value="20" step="1" oninput="document.getElementById('gv').textContent=(+this.value/10).toFixed(1)"></div>
+    <div class="pr"><div class="pl"><span class="pn">Tversky α (FP weight)</span><span class="pv" id="tv">0.30</span></div>
+      <input type="range" id="talpha" min="1" max="9" value="3" step="1" oninput="document.getElementById('tv').textContent=(+this.value/10).toFixed(2)"></div>
+    <div class="pr"><div class="pl"><span class="pn">Combo λ (Dice weight)</span><span class="pv" id="combov">0.50</span></div>
+      <input type="range" id="combol" min="10" max="90" value="50" step="5" oninput="document.getElementById('combov').textContent=(+this.value/100).toFixed(2)"></div>
+  </div></div>
+
+  <div class="psec"><div class="ph">Activation Functions</div><div class="pb">
+    <div class="pr"><span class="pn" style="margin-bottom:3px">Hidden Layers</span>
+      <select id="act">
+        <option value="relu">ReLU — max(0,x)</option>
+        <option value="leaky">Leaky ReLU — αx if x&lt;0</option>
+        <option value="elu">ELU — smooth negatives</option>
+        <option value="selu">SELU — self-normalizing</option>
+        <option value="gelu">GELU — Transformer-style</option>
+        <option value="swish">Swish — x·σ(x)</option>
+        <option value="mish">Mish — x·tanh(softplus(x))</option>
+        <option value="prelu">PReLU — learnable α</option>
+      </select></div>
+    <div class="pr"><span class="pn" style="margin-bottom:3px">Output Layer</span>
+      <select id="outact">
+        <option value="sigmoid">Sigmoid — binary [0,1]</option>
+        <option value="softmax">Softmax — multi-class</option>
+        <option value="none">None (raw logits)</option>
+      </select></div>
+  </div></div>
+
+  <div class="psec"><div class="ph">Model Architecture</div><div class="pb">
+    <div class="pr"><select id="arch">
+        <option value="unet">U-Net — original skip connections</option>
+        <option value="attunet">Attention U-Net — gated skips</option>
+        <option value="resunet">ResU-Net — residual encoder</option>
+        <option value="unetpp">U-Net++ — nested dense skips</option>
+        <option value="transunet">TransUNet — CNN + Transformer</option>
+        <option value="segnet">SegNet — pooling indices decoder</option>
+      </select></div>
+    <div class="pr"><div class="pl"><span class="pn">Base Filters</span><span class="pv" id="fv">64</span></div>
+      <input type="range" id="filters" min="1" max="5" value="3" step="1" oninput="updF(this.value)"></div>
+    <div class="pr"><div class="pl"><span class="pn">Dropout Rate</span><span class="pv" id="drv">0.20</span></div>
+      <input type="range" id="dr" min="0" max="70" value="20" step="5" oninput="document.getElementById('drv').textContent=(+this.value/100).toFixed(2)"></div>
+    <div class="pr"><div class="pl"><span class="pn">Encoder Depth</span><span class="pv" id="dv">4</span></div>
+      <input type="range" id="depth" min="2" max="6" value="4" step="1" oninput="document.getElementById('dv').textContent=this.value"></div>
+    <div class="pr"><span class="pn" style="margin-bottom:3px">Normalization</span>
+      <select id="norm">
+        <option value="bn">Batch Norm</option>
+        <option value="in">Instance Norm</option>
+        <option value="ln">Layer Norm</option>
+        <option value="gn">Group Norm</option>
+        <option value="no">None</option>
+      </select></div>
+    <div class="pr"><span class="pn" style="margin-bottom:3px">Skip Connection</span>
+      <select id="skip">
+        <option value="concat">Concatenation</option>
+        <option value="add">Addition (ResNet)</option>
+        <option value="attn">Attention Gate</option>
+        <option value="none">None</option>
+      </select></div>
+    <div class="pr"><span class="pn" style="margin-bottom:3px">Upsampling</span>
+      <select id="upsamp">
+        <option value="transconv">Transposed Conv</option>
+        <option value="bilinear">Bilinear + Conv</option>
+        <option value="nearest">Nearest + Conv</option>
+        <option value="pixelshuffle">Pixel Shuffle</option>
+      </select></div>
+  </div></div>
+
+  <div class="psec"><div class="ph">Regularization</div><div class="pb">
+    <div class="pr"><div class="pl"><span class="pn">L1 Regularization</span><span class="pv" id="l1v">0</span></div>
+      <input type="range" id="l1" min="0" max="4" value="0" step="1" oninput="updL1(this.value)"></div>
+    <div class="pr"><div class="pl"><span class="pn">Label Smoothing (ε)</span><span class="pv" id="lsv">0.00</span></div>
+      <input type="range" id="ls" min="0" max="20" value="0" step="1" oninput="document.getElementById('lsv').textContent=(+this.value/100).toFixed(2)"></div>
+    <div class="pr"><div class="pl"><span class="pn">Gradient Clipping</span><span class="pv" id="gcv">Off</span></div>
+      <input type="range" id="gc" min="0" max="10" value="0" step="1" oninput="updGC(this.value)"></div>
+    <div class="pr"><span class="pn" style="margin-bottom:3px">Weight Init</span>
+      <select id="winit">
+        <option value="he">He (Kaiming) — for ReLU</option>
+        <option value="xavier">Xavier/Glorot — sigmoid/tanh</option>
+        <option value="orthogonal">Orthogonal — stable gradients</option>
+        <option value="random">Random Normal</option>
+      </select></div>
+  </div></div>
+
+  <div class="psec"><div class="ph">Data Augmentation</div><div class="pb">
+    <div class="togs" id="augs">
+      <div class="tog on" data-a="flip">H-Flip</div>
+      <div class="tog on" data-a="rotate">Rotate</div>
+      <div class="tog" data-a="elastic">Elastic</div>
+      <div class="tog" data-a="noise">Noise</div>
+      <div class="tog" data-a="scale">Rescale</div>
+      <div class="tog" data-a="contrast">Contrast</div>
+      <div class="tog" data-a="vflip">V-Flip</div>
+      <div class="tog" data-a="cutout">Cutout</div>
+      <div class="tog" data-a="mixup">MixUp</div>
+    </div>
+  </div></div>
+
+  <div class="psec"><div class="ph">Tumor Scenario</div><div class="pb">
+    <div class="pr"><select id="tumor" onchange="resetScene()">
+        <option value="glioma">Glioma — diffuse boundary</option>
+        <option value="mening">Meningioma — compact</option>
+        <option value="multi">Multi-focal — 3 lesions</option>
+        <option value="small">Micro-lesion — challenging</option>
+        <option value="ring">Ring-enhancing — necrotic core</option>
+      </select></div>
+    <div class="pr"><div class="pl"><span class="pn">MRI Noise (σ)</span><span class="pv" id="noisv">0.15</span></div>
+      <input type="range" id="noisl" min="0" max="60" value="15" step="5" oninput="document.getElementById('noisv').textContent=(+this.value/100).toFixed(2);resetScene()"></div>
+    <div class="pr"><div class="pl"><span class="pn">Class Imbalance (tumor%)</span><span class="pv" id="ibv">5%</span></div>
+      <input type="range" id="imbal" min="1" max="40" value="5" step="1" oninput="document.getElementById('ibv').textContent=this.value+'%'"></div>
+    <div class="pr"><div class="pl"><span class="pn">Boundary Blur</span><span class="pv" id="blurv">Low</span></div>
+      <input type="range" id="blur" min="1" max="4" value="1" step="1" oninput="updBlur(this.value)"></div>
+  </div></div>
+
+</div>
+
+<!-- CENTER -->
+<div class="center">
+  <div class="canvas-row">
+    <div class="cw"><div class="ct">MRI Input</div><canvas id="ci" width="148" height="148"></canvas><div class="csub">Raw scan</div></div>
+    <div class="cw"><div class="ct">Ground Truth</div><canvas id="cg" width="148" height="148"></canvas><div class="csub">Expert annotation</div></div>
+    <div class="cw"><div class="ct">Model Prediction</div><canvas id="cp" width="148" height="148"></canvas><div class="csub" id="psub">Epoch 0</div></div>
+    <div class="cw"><div class="ct">Error Map</div><canvas id="cd" width="148" height="148"></canvas><div class="csub">FP=red · FN=blue · TP=green</div></div>
+  </div>
+
+  <div class="mbar">
+    <div class="met"><div class="mv" id="mdice" style="color:#00ff9d">0.000</div><div class="ml">Dice Score</div></div>
+    <div class="met"><div class="mv" id="miou" style="color:#00d4ff">0.000</div><div class="ml">IoU</div></div>
+    <div class="met"><div class="mv" id="mhd95" style="color:#c084fc">—</div><div class="ml">HD95 (mm)</div></div>
+    <div class="met"><div class="mv" id="mloss" style="color:#ffb347">1.000</div><div class="ml">Train Loss</div></div>
+    <div class="met"><div class="mv" id="mvloss" style="color:#7c3aed">1.000</div><div class="ml">Val Loss</div></div>
+    <div class="met"><div class="mv" id="mprec" style="color:#ffb347">0.00</div><div class="ml">Precision</div></div>
+    <div class="met"><div class="mv" id="mrec" style="color:#ff4757">0.00</div><div class="ml">Recall</div></div>
+    <div class="met"><div class="mv" id="mep" style="color:#e2e8f0">0</div><div class="ml">Epoch</div></div>
+  </div>
+
+  <div class="runrow">
+    <button class="rbtn" id="rbtn" onclick="startTrain()">▶ Start Training</button>
+    <button class="sbtn" id="sbtn" onclick="stopTrain(false)" disabled>Stop</button>
+    <button class="xbtn" onclick="resetScene()">Reset</button>
+    <button class="cbtn" onclick="clearHistory()">Clear History</button>
+  </div>
+  <div class="status" id="status">Set parameters and click Start Training.</div>
+
+  <!-- RUN HISTORY -->
+  <div class="history-wrap">
+    <div class="history-header">
+      <span class="history-title">Run History</span>
+      <span style="font-size:9px;color:#475569" id="best-label"></span>
+    </div>
+    <table class="history-table" id="hist-table">
+      <thead>
+        <tr>
+          <th style="text-align:left">Run</th>
+          <th>Arch</th>
+          <th>Loss fn</th>
+          <th>LR</th>
+          <th>Ep</th>
+          <th>Dice↑</th>
+          <th>IoU↑</th>
+          <th>HD95↓</th>
+          <th>Prec</th>
+          <th>Recall</th>
+          <th>Overfit</th>
+        </tr>
+      </thead>
+      <tbody id="hist-body">
+        <tr><td colspan="11" style="text-align:center;color:#1e2a45;padding:10px">No runs yet</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <div><div class="cht">Train vs Val Loss</div><canvas id="closs" width="178" height="100"></canvas>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:#ffb347"></div>Train loss</div>
+      <div class="li"><div class="ld" style="background:#00d4ff"></div>Val loss</div>
+      <div class="li"><div class="ld" style="background:#ff4757;border-radius:0"></div>Overfit mark</div>
+    </div></div>
+  <div><div class="cht">Dice Score</div><canvas id="cdice" width="178" height="100"></canvas>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:#00ff9d"></div>Train Dice</div>
+      <div class="li"><div class="ld" style="background:#00d4ff"></div>Val Dice</div>
+    </div></div>
+  <div><div class="cht">HD95 (mm) — lower is better</div><canvas id="chd" width="178" height="70"></canvas></div>
+  <div><div class="cht">Learning Rate</div><canvas id="clr" width="178" height="60"></canvas></div>
+  <div class="ibox">
+    <div class="kv"><span>Architecture</span><span id="ia">U-Net</span></div>
+    <div class="kv"><span>Parameters</span><span id="ip">~7.8M</span></div>
+    <div class="kv"><span>Loss fn</span><span id="il">Dice</span></div>
+    <div class="kv"><span>Activation</span><span id="iac">ReLU</span></div>
+    <div class="kv"><span>Output act.</span><span id="ioa">Sigmoid</span></div>
+    <div class="kv"><span>Optimizer</span><span id="io">Adam</span></div>
+    <div class="kv"><span>Skip conn.</span><span id="isk">Concat</span></div>
+    <div class="kv"><span>Augmentation</span><span id="ig">2 active</span></div>
+    <div class="kv"><span>Best Val Dice</span><span id="ibest" style="color:#00ff9d">—</span></div>
+    <div class="kv"><span>Best HD95</span><span id="ibhd" style="color:#c084fc">—</span></div>
+    <div class="kv"><span>Overfitting</span><span id="iov" style="color:#475569">—</span></div>
+    <div class="kv"><span>Est. ceiling</span><span id="icel" style="color:#ffb347">—</span></div>
+  </div>
+</div>
+</div>
+</div>
+
+<script>
+const SZ=148;
+let gtD=null,inD=null,timer=null,ep=0,maxEp=50,running=false;
+let lH=[],dH=[],lrH=[],vlH=[],vdH=[],hdH=[],best=0,bestHD=999,t0=0;
+let runCount=0,runs=[];
+let augs=new Set(['flip','rotate']);
+const RUN_COLORS=['#00d4ff','#00ff9d','#ffb347','#c084fc','#ff4757','#34d399','#f472b6','#60a5fa','#fb923c','#a78bfa'];
+
+document.querySelectorAll('.tog').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const a=b.dataset.a;
+    augs.has(a)?(augs.delete(a),b.classList.remove('on')):(augs.add(a),b.classList.add('on'));
+    document.getElementById('ig').textContent=augs.size+' active';
+  });
+});
+
+const WDV=['0','1e-6','1e-5','1e-4','5e-4','1e-3','5e-3','1e-2'];
+function updWD(v){document.getElementById('wdv').textContent=WDV[+v]||'1e-4'}
+const FV=[8,16,32,64,128];
+function updF(v){document.getElementById('fv').textContent=FV[+v-1]||64}
+const L1V=['0','1e-6','1e-5','1e-4','5e-4'];
+function updL1(v){document.getElementById('l1v').textContent=L1V[+v]||'0'}
+function updGC(v){document.getElementById('gcv').textContent=+v===0?'Off':v+'.0'}
+const BLURV=['Low','Medium','High','Very High'];
+function updBlur(v){document.getElementById('blurv').textContent=BLURV[+v-1]||'Low'}
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function n2d(x,y,s,a){return a*(Math.sin(x*s)*Math.cos(y*s*1.3)+Math.sin(x*s*0.7+1)*Math.cos(y*s*0.9))}
+
+function buildScene(){
+  const type=document.getElementById('tumor').value;
+  const nl=parseFloat(document.getElementById('noisl').value)/100||0.15;
+  const blurLevel=parseInt(document.getElementById('blur').value)||1;
+  const inp=new Uint8ClampedArray(SZ*SZ*4);
+  const gt=new Uint8ClampedArray(SZ*SZ*4);
+  for(let y=0;y<SZ;y++){
+    for(let x=0;x<SZ;x++){
+      const nx=x/SZ,ny=y/SZ;
+      const cx=0.5,cy=0.5,rx=0.43,ry=0.39;
+      const inB=(((nx-cx)/rx)**2+((ny-cy)/ry)**2)<1;
+      let v=0,tumor=false;
+      if(inB){
+        const wm=0.42+n2d(nx,ny,5,0.15);
+        const gm=0.26+n2d(nx,ny,6,0.12);
+        v=(((nx-cx)/rx)**2+((ny-cy)/ry)**2>0.5)?gm:wm;
+        v+=nl*(Math.random()-0.5)*2;
+        v=clamp(v,0,1);
+        if(type==='glioma'){
+          const d=Math.sqrt((nx-0.55)**2+(ny-0.40)**2);
+          const bx=0.018*blurLevel;
+          if(d<0.18+bx){
+            if(d<0.09){v=clamp(v*0.6+0.4+n2d(nx,ny,20,0.08),0,1);tumor=true}
+            else if(d<0.15+bx*0.5){v=clamp(v*0.8+0.15+n2d(nx,ny,12,0.06),0,1);tumor=true}
+            else{tumor=Math.random()>(blurLevel-1)*0.25}
+          }
+        } else if(type==='mening'){
+          const d=Math.sqrt((nx-0.72)**2+(ny-0.30)**2);
+          if(d<0.10){v=clamp(v+0.38+n2d(nx,ny,25,0.05),0,1);tumor=true}
+        } else if(type==='multi'){
+          [{x:0.55,y:0.38,r:0.10},{x:0.35,y:0.56,r:0.075},{x:0.63,y:0.63,r:0.060}].forEach(t=>{
+            const d=Math.sqrt((nx-t.x)**2+(ny-t.y)**2);
+            if(d<t.r){v=clamp(v*0.7+0.3+n2d(nx,ny,18,0.07),0,1);tumor=true}
+          });
+        } else if(type==='small'){
+          const d=Math.sqrt((nx-0.58)**2+(ny-0.42)**2);
+          if(d<0.052){v=clamp(v+0.30+n2d(nx,ny,30,0.04),0,1);tumor=true}
+        } else if(type==='ring'){
+          const d=Math.sqrt((nx-0.54)**2+(ny-0.41)**2);
+          if(d<0.16){
+            if(d<0.07){v=clamp(v*0.4+0.15+n2d(nx,ny,22,0.06),0,1);tumor=true}
+            else if(d<0.13){v=clamp(v+0.5+n2d(nx,ny,18,0.08),0,1);tumor=true}
+            else{v=clamp(v+0.15+n2d(nx,ny,10,0.05),0,1);tumor=true}
+          }
+        }
+      }
+      const g=Math.round(v*255),i=(y*SZ+x)*4;
+      inp[i]=g;inp[i+1]=g;inp[i+2]=g;inp[i+3]=255;
+      if(tumor){gt[i]=255;gt[i+1]=50;gt[i+2]=50;gt[i+3]=180}
+    }
+  }
+  return{inp,gt};
+}
+
+function putImg(id,data){
+  const c=document.getElementById(id),ctx=c.getContext('2d');
+  ctx.putImageData(new ImageData(new Uint8ClampedArray(data),SZ,SZ),0,0);
+}
+
+function drawGT(){
+  const c=document.getElementById('cg'),ctx=c.getContext('2d');
+  ctx.putImageData(new ImageData(new Uint8ClampedArray(inD),SZ,SZ),0,0);
+  const ov=new Uint8ClampedArray(SZ*SZ*4);
+  for(let i=0;i<SZ*SZ;i++){const j=i*4;if(gtD[j+3]>0){ov[j]=255;ov[j+1]=60;ov[j+2]=60;ov[j+3]=165}}
+  const tmp=document.createElement('canvas');tmp.width=SZ;tmp.height=SZ;
+  tmp.getContext('2d').putImageData(new ImageData(ov,SZ,SZ),0,0);
+  ctx.drawImage(tmp,0,0);
+}
+
+function renderPred(dice,ep_,maxEp_){
+  if(!gtD||!inD)return;
+  const t=Math.pow(ep_/maxEp_,0.55);
+  const skipB=document.getElementById('skip').value==='none'?-0.12:document.getElementById('skip').value==='attn'?0.03:0;
+  const pred=new Uint8ClampedArray(SZ*SZ*4);
+  const diff=new Uint8ClampedArray(SZ*SZ*4);
+  for(let y=0;y<SZ;y++){
+    for(let x=0;x<SZ;x++){
+      const i=(y*SZ+x)*4;
+      const isGT=gtD[i+3]>0;
+      let prob=isGT?t*(0.60+dice*0.40+skipB):t*0.035;
+      prob=clamp(prob+(Math.random()-0.5)*0.20*(1-t*0.8),0,1);
+      const isPred=prob>0.5;
+      pred[i]=inD[i];pred[i+1]=inD[i+1];pred[i+2]=inD[i+2];pred[i+3]=255;
+      if(isPred){pred[i]=Math.min(255,pred[i]+175);pred[i+1]=Math.max(0,pred[i+1]-25);pred[i+2]=Math.max(0,pred[i+2]-25)}
+      if(isGT&&!isPred){diff[i]=50;diff[i+1]=100;diff[i+2]=255;diff[i+3]=190}
+      else if(!isGT&&isPred){diff[i]=255;diff[i+1]=50;diff[i+2]=50;diff[i+3]=165}
+      else if(isGT&&isPred){diff[i]=0;diff[i+1]=235;diff[i+2]=100;diff[i+3]=65}
+      else diff[i+3]=0;
+    }
+  }
+  document.getElementById('cp').getContext('2d').putImageData(new ImageData(pred,SZ,SZ),0,0);
+  document.getElementById('cd').getContext('2d').putImageData(new ImageData(diff,SZ,SZ),0,0);
+}
+
+function computeHD95(dice,ep_,maxEp_,ceiling){
+  // Simulates HD95 in mm: starts high, decreases as Dice improves, floor depends on tumor type & boundary blur
+  const blur=parseInt(document.getElementById('blur').value)||1;
+  const type=document.getElementById('tumor').value;
+  const blurPenalty=blur*3.5;
+  const typePenalty={glioma:8,mening:4,multi:12,small:14,ring:10}[type]||8;
+  const t=ep_/maxEp_;
+  const baseHD=80+blurPenalty+typePenalty;
+  const floor=2+blurPenalty*0.5+typePenalty*0.15;
+  const hd=floor+(baseHD-floor)*Math.exp(-4*dice*t)+(Math.random()-0.5)*3*(1-t*0.7);
+  return Math.max(floor,hd);
+}
+
+function getCLR(){
+  const base=parseFloat(document.getElementById('lr').value)/1000;
+  const s=document.getElementById('sched').value;
+  if(s==='cosine') return base*0.5*(1+Math.cos(Math.PI*ep/maxEp));
+  if(s==='step') return base*Math.pow(0.1,Math.floor(ep/30));
+  if(s==='exp') return base*Math.pow(0.95,ep);
+  if(s==='warmup'){
+    if(ep<maxEp*0.1) return base*(ep/(maxEp*0.1));
+    return base*0.5*(1+Math.cos(Math.PI*(ep-maxEp*0.1)/(maxEp*0.9)));
+  }
+  if(s==='plateau'&&lH.length>10){const r=lH.slice(-5);if(r[0]-r[4]<0.003)return base*Math.pow(0.1,Math.floor(ep/20))}
+  return base;
+}
+
+function simEpoch(){
+  const lr=getCLR();
+  const loss=document.getElementById('loss').value;
+  const arch=document.getElementById('arch').value;
+  const act=document.getElementById('act').value;
+  const outact=document.getElementById('outact').value;
+  const skip=document.getElementById('skip').value;
+  const upsamp=document.getElementById('upsamp').value;
+  const norm=document.getElementById('norm').value;
+  const winit=document.getElementById('winit').value;
+  const dr=parseFloat(document.getElementById('dr').value)/100;
+  const depth=parseInt(document.getElementById('depth').value);
+  const fi=parseInt(document.getElementById('filters').value);
+  const bs=parseInt(document.getElementById('bs').value);
+  const ls=parseFloat(document.getElementById('ls').value)/100;
+  const nl=parseFloat(document.getElementById('noisl').value)/100;
+  const imb=parseInt(document.getElementById('imbal').value)/100;
+  const blur=parseInt(document.getElementById('blur').value);
+
+  let augB=0;
+  if(augs.has('flip'))augB+=0.008;if(augs.has('rotate'))augB+=0.010;
+  if(augs.has('elastic'))augB+=0.016;if(augs.has('noise'))augB+=0.005;
+  if(augs.has('scale'))augB+=0.012;if(augs.has('contrast'))augB+=0.007;
+  if(augs.has('vflip'))augB+=0.006;if(augs.has('cutout'))augB+=0.009;
+  if(augs.has('mixup'))augB+=0.008;
+
+  const archB={unet:0,attunet:0.045,resunet:0.035,unetpp:0.055,transunet:0.07,segnet:-0.02}[arch]||0;
+  const normB={bn:0.012,in:0.009,ln:0.006,gn:0.010,no:-0.012}[norm]||0;
+  const actB={relu:0,leaky:0.005,elu:0.008,selu:0.007,gelu:0.012,swish:0.010,mish:0.011,prelu:0.009}[act]||0;
+  const outB={sigmoid:0,softmax:0.01,none:-0.03}[outact]||0;
+  const skipB={concat:0,add:0.005,attn:0.030,none:-0.15}[skip]||0;
+  const upsampB={transconv:0,bilinear:0.008,nearest:0.003,pixelshuffle:0.010}[upsamp]||0;
+  const winitB={he:0,xavier:-0.005,orthogonal:0.005,random:-0.015}[winit]||0;
+  const lossB={dice:0.05,bce:-0.05,combo:0.08,focal:0.06+imb*0.5,tversky:0.07+imb*0.6,lovasz:0.07,boundary:0.04+blur*0.01}[loss]||0;
+  const lrE=1-Math.abs(Math.log10(lr+1e-10)+2)*0.09;
+  const ceiling=clamp(0.60+archB+normB+actB+outB+skipB+upsampB+winitB+lossB+augB
+    +lrE*0.05+(depth-3)*0.014+(fi-3)*0.018+Math.log2(bs)/6*0.01+ls*0.02
+    -imb*0.12-nl*0.10-blur*0.015-dr*(ep>maxEp*0.5?0.04:0),0.30,0.97);
+
+  const t=ep/maxEp;
+  const curDice=clamp(ceiling*(1-Math.exp(-0.85*t*4))+(Math.random()-0.5)*0.022*(1-t),0,0.99);
+  const overfit=Math.max(0,(t-0.62)*0.20*Math.random()*(1-augB*5));
+  const valDice=clamp(curDice-overfit,0,0.99);
+  const lv=clamp(1-curDice+(Math.random()-0.5)*0.03,0.01,1.5);
+  const vlv=clamp(1-valDice+overfit*0.3,0.01,1.5);
+  const prec=clamp(curDice+0.03+Math.random()*0.03,0,1);
+  const rec=clamp(curDice-0.03+Math.random()*0.03,0,1);
+  const iou=curDice/(2-curDice);
+  const hd95=computeHD95(valDice,ep,maxEp,ceiling);
+  return{dice:curDice,valDice,loss:lv,valLoss:vlv,lr,prec,rec,iou,hd95,ceiling};
+}
+
+function drawChart(id,train,val,maxY,tc,vc){
+  const c=document.getElementById(id),ctx=c.getContext('2d');
+  const W=c.width,H=c.height,pad=15,pL=30,pR=5;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#0f1527';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#1a2540';ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){
+    const y=pad+(H-pad*2)*i/4;
+    ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();
+    ctx.fillStyle='#334155';ctx.font='8px monospace';ctx.textAlign='right';
+    ctx.fillText((maxY*(1-i/4)).toFixed(2),pL-2,y+3);
+  }
+  const dw=(W-pL-pR)/Math.max(maxEp,1);
+  function line(data,col,w){
+    if(data.length<2)return;
+    ctx.beginPath();ctx.strokeStyle=col;ctx.lineWidth=w||1.5;ctx.lineJoin='round';
+    data.forEach((v,i)=>{const x=pL+i*dw,y=pad+(H-pad*2)*(1-clamp(v,0,maxY)/maxY);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+    ctx.stroke();
+  }
+  if(train.length>5&&val.length>5){
+    const oi=train.map((v,i)=>val[i]?Math.abs(v-val[i]):0).findIndex(g=>g>0.10);
+    if(oi>0){
+      const ox=pL+oi*dw;
+      ctx.save();ctx.strokeStyle='rgba(255,71,87,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+      ctx.beginPath();ctx.moveTo(ox,pad);ctx.lineTo(ox,H-pad);ctx.stroke();ctx.restore();
+    }
+  }
+  line(val,vc,1.2);line(train,tc);
+  if(train.length){ctx.fillStyle=tc;ctx.font='8px monospace';ctx.textAlign='right';ctx.fillText(train[train.length-1].toFixed(3),W-pR,pad+8)}
+}
+
+function drawHDChart(data){
+  const c=document.getElementById('chd'),ctx=c.getContext('2d');
+  const W=c.width,H=c.height,pad=12,pL=30,pR=5;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#0f1527';ctx.fillRect(0,0,W,H);
+  if(data.length<2)return;
+  const mx=Math.max(...data)*1.1||100;
+  const dw=(W-pL-pR)/Math.max(maxEp,1);
+  ctx.strokeStyle='#1a2540';ctx.lineWidth=0.5;
+  for(let i=0;i<=3;i++){
+    const y=pad+(H-pad*2)*i/3;
+    ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();
+    ctx.fillStyle='#334155';ctx.font='8px monospace';ctx.textAlign='right';
+    ctx.fillText(Math.round(mx*(1-i/3)),pL-2,y+3);
+  }
+  ctx.beginPath();ctx.strokeStyle='#c084fc';ctx.lineWidth=1.5;ctx.lineJoin='round';
+  data.forEach((v,i)=>{const x=pL+i*dw,y=pad+(H-pad*2)*(1-clamp(v,0,mx)/mx);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+  ctx.stroke();
+  ctx.fillStyle='#c084fc';ctx.font='8px monospace';ctx.textAlign='right';
+  ctx.fillText(data[data.length-1].toFixed(1)+'mm',W-pR,pad+8);
+}
+
+function drawLR(data){
+  const c=document.getElementById('clr'),ctx=c.getContext('2d');
+  const W=c.width,H=c.height,pad=10,pL=30,pR=5;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#0f1527';ctx.fillRect(0,0,W,H);
+  if(data.length<2)return;
+  const mx=Math.max(...data)*1.15||0.01;
+  const dw=(W-pL-pR)/Math.max(maxEp,1);
+  ctx.beginPath();ctx.strokeStyle='#7c3aed';ctx.lineWidth=1.5;ctx.lineJoin='round';
+  data.forEach((v,i)=>{const x=pL+i*dw,y=pad+(H-pad*2)*(1-v/mx);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+  ctx.stroke();
+  ctx.fillStyle='#7c3aed';ctx.font='8px monospace';ctx.textAlign='right';
+  ctx.fillText(data[data.length-1].toFixed(5),W-pR,pad+8);
+}
+
+const ARCH_SHORT={unet:'U-Net',attunet:'Att.U-Net',resunet:'ResUNet',unetpp:'U-Net++',transunet:'TransU',segnet:'SegNet'};
+const LOSS_SHORT={dice:'Dice',bce:'BCE',combo:'Combo',focal:'Focal',tversky:'Tversky',lovasz:'Lovász',boundary:'Boundary'};
+const OPT_SHORT={adam:'Adam',adamw:'AdamW',sgd:'SGD',rms:'RMS',nadam:'Nadam',adagrad:'Ada'};
+const ACT_SHORT={relu:'ReLU',leaky:'LReLU',elu:'ELU',selu:'SELU',gelu:'GELU',swish:'Swish',mish:'Mish',prelu:'PReLU'};
+const SKIP_SHORT={concat:'Concat',add:'Add',attn:'Attn',none:'None'};
+
+function updInfo(){
+  const arch=document.getElementById('arch').value;
+  const fi=FV[parseInt(document.getElementById('filters').value)-1]||64;
+  const dep=parseInt(document.getElementById('depth').value);
+  const base={unet:7.8,attunet:8.6,resunet:9.2,unetpp:9.0,transunet:85,segnet:6.5}[arch]||7.8;
+  document.getElementById('ia').textContent=ARCH_SHORT[arch]||arch;
+  document.getElementById('ip').textContent='~'+(base*(fi/64)*(dep/4)).toFixed(1)+'M';
+  document.getElementById('il').textContent=LOSS_SHORT[document.getElementById('loss').value]||'?';
+  document.getElementById('iac').textContent=ACT_SHORT[document.getElementById('act').value]||'ReLU';
+  document.getElementById('ioa').textContent=document.getElementById('outact').value;
+  document.getElementById('io').textContent=OPT_SHORT[document.getElementById('opt').value]||'Adam';
+  document.getElementById('isk').textContent=SKIP_SHORT[document.getElementById('skip').value]||'Concat';
+  document.getElementById('ig').textContent=augs.size+' active';
+}
+
+function renderHistoryTable(){
+  const tbody=document.getElementById('hist-body');
+  if(runs.length===0){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:#1e2a45;padding:10px">No runs yet</td></tr>';return}
+  const bestDiceRun=runs.reduce((a,b)=>b.valDice>a.valDice?b:a,runs[0]);
+  const bestHDRun=runs.reduce((a,b)=>b.hd95<a.hd95?b:a,runs[0]);
+  document.getElementById('best-label').textContent=`Best Dice: Run #${bestDiceRun.num} · Best HD95: Run #${bestHDRun.num}`;
+  tbody.innerHTML=runs.slice().reverse().map(r=>{
+    const isBestDice=r===bestDiceRun;
+    const isBestHD=r===bestHDRun;
+    const col=RUN_COLORS[(r.num-1)%RUN_COLORS.length];
+    return `<tr class="${isBestDice?'best-run':''}">
+      <td><span class="run-num" style="background:${col}22;color:${col}">#${r.num}</span>${r.arch}</td>
+      <td>${r.loss}</td>
+      <td>${r.lr}</td>
+      <td>${r.ep}</td>
+      <td style="color:${isBestDice?'#00ff9d':'#94a3b8'};font-weight:${isBestDice?700:400}">${r.valDice}</td>
+      <td>${r.iou}</td>
+      <td style="color:${isBestHD?'#c084fc':'#94a3b8'};font-weight:${isBestHD?700:400}">${r.hd95}</td>
+      <td>${r.prec}</td>
+      <td>${r.rec}</td>
+      <td style="color:${r.overfit?'#ff4757':'#00ff9d'}">${r.overfit?'Yes':'No'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function clearHistory(){
+  runs=[];runCount=0;renderHistoryTable();
+  document.getElementById('best-label').textContent='';
+}
+
+function resetScene(){
+  if(running)stopTrain(false);
+  ep=0;lH=[];dH=[];lrH=[];vlH=[];vdH=[];hdH=[];best=0;bestHD=999;
+  ['mdice','miou','mloss','mvloss','mprec','mrec'].forEach(id=>document.getElementById(id).textContent='0.000');
+  document.getElementById('mhd95').textContent='—';
+  document.getElementById('mep').textContent='0';
+  document.getElementById('ibest').textContent='—';
+  document.getElementById('ibhd').textContent='—';
+  document.getElementById('iov').textContent='—';
+  document.getElementById('icel').textContent='—';
+  document.getElementById('etick').textContent='Epoch: 0';
+  document.getElementById('psub').textContent='Epoch 0';
+  document.getElementById('status').textContent='Set parameters and click Start Training.';
+  document.getElementById('status').className='status';
+  const sc=buildScene();inD=sc.inp;gtD=sc.gt;
+  putImg('ci',inD);drawGT();
+  document.getElementById('cp').getContext('2d').clearRect(0,0,SZ,SZ);
+  document.getElementById('cd').getContext('2d').clearRect(0,0,SZ,SZ);
+  drawChart('closs',[],[],1.3,'#ffb347','#00d4ff');
+  drawChart('cdice',[],[],1,'#00ff9d','#00d4ff');
+  drawHDChart([]);drawLR([]);updInfo();
+}
+
+function startTrain(){
+  if(running)return;
+  running=true;ep=0;lH=[];dH=[];lrH=[];vlH=[];vdH=[];hdH=[];best=0;bestHD=999;
+  maxEp=parseInt(document.getElementById('ep').value)||50;
+  t0=Date.now();runCount++;
+  document.getElementById('rbtn').disabled=true;
+  document.getElementById('sbtn').disabled=false;
+  document.getElementById('status').textContent=`Run #${runCount} started...`;
+  document.getElementById('status').className='status run';
+  updInfo();tick();
+}
+
+function tick(){
+  if(!running)return;
+  const r=simEpoch();ep++;
+  lH.push(r.loss);dH.push(r.dice);lrH.push(r.lr);vlH.push(r.valLoss);vdH.push(r.valDice);hdH.push(r.hd95);
+  if(r.valDice>best){best=r.valDice;document.getElementById('ibest').textContent=best.toFixed(3)}
+  if(r.hd95<bestHD){bestHD=r.hd95;document.getElementById('ibhd').textContent=bestHD.toFixed(1)+'mm'}
+  document.getElementById('mdice').textContent=r.dice.toFixed(3);
+  document.getElementById('miou').textContent=r.iou.toFixed(3);
+  document.getElementById('mhd95').textContent=r.hd95.toFixed(1);
+  document.getElementById('mloss').textContent=r.loss.toFixed(3);
+  document.getElementById('mvloss').textContent=r.valLoss.toFixed(3);
+  document.getElementById('mprec').textContent=r.prec.toFixed(2);
+  document.getElementById('mrec').textContent=r.rec.toFixed(2);
+  document.getElementById('mep').textContent=ep;
+  document.getElementById('icel').textContent=r.ceiling?.toFixed(3)||'—';
+  document.getElementById('etick').textContent=`Run #${runCount} · Epoch ${ep}`;
+  document.getElementById('psub').textContent=`Run #${runCount} · Epoch ${ep}/${maxEp}`;
+  const el=Math.floor((Date.now()-t0)/1000);
+  document.getElementById('ttick').textContent=String(Math.floor(el/60)).padStart(2,'0')+':'+String(el%60).padStart(2,'0');
+  const over=vlH.length>8&&(vlH[vlH.length-1]-lH[lH.length-1])>0.10;
+  document.getElementById('iov').textContent=over?'Yes ⚠':'No';
+  document.getElementById('iov').style.color=over?'#ff4757':'#00ff9d';
+  const st=document.getElementById('status');
+  st.textContent=`Run #${runCount} · Epoch ${ep}/${maxEp} · LR:${r.lr.toFixed(5)} · Val Dice:${r.valDice.toFixed(3)} · HD95:${r.hd95.toFixed(1)}mm${over?' · ⚠ Overfitting':''}`;
+  st.className=over?'status warn':'status run';
+  renderPred(r.dice,ep,maxEp);
+  drawChart('closs',lH,vlH,1.3,'#ffb347','#00d4ff');
+  drawChart('cdice',dH,vdH,1,'#00ff9d','#00d4ff');
+  drawHDChart(hdH);drawLR(lrH);
+  if(ep>=maxEp){stopTrain(true);return}
+  timer=setTimeout(tick,Math.max(20,150-ep*0.3));
+}
+
+function stopTrain(done){
+  running=false;clearTimeout(timer);timer=null;
+  document.getElementById('rbtn').disabled=false;
+  document.getElementById('sbtn').disabled=false;
+  document.getElementById('sbtn').disabled=true;
+  const over=vlH.length>8&&vlH[vlH.length-1]-lH[lH.length-1]>0.10;
+  if(done||ep>0){
+    runs.push({
+      num:runCount,
+      arch:ARCH_SHORT[document.getElementById('arch').value]||'U-Net',
+      loss:LOSS_SHORT[document.getElementById('loss').value]||'Dice',
+      lr:(parseFloat(document.getElementById('lr').value)/1000).toFixed(4),
+      ep:ep,
+      valDice:best.toFixed(3),
+      iou:(best/(2-best)).toFixed(3),
+      hd95:bestHD.toFixed(1),
+      prec:(clamp(best+0.03,0,1)).toFixed(2),
+      rec:(clamp(best-0.03,0,1)).toFixed(2),
+      overfit:over
+    });
+    renderHistoryTable();
+  }
+  const st=document.getElementById('status');
+  if(done){st.textContent=`Run #${runCount} complete — Best Val Dice: ${best.toFixed(3)} · HD95: ${bestHD.toFixed(1)}mm`;st.className='status done'}
+  else{st.textContent=`Run #${runCount} stopped at epoch ${ep}/${maxEp}`;st.className='status'}
+}
+
+resetScene();
+</script>
